@@ -15,11 +15,12 @@ Install Chocolatey: https://chocolatey.org/install
 
 Install Tools (if available):
 
-...
+```
+
 PowerShell
 
 choco install k6
 
-...
+```
 
 **Use code with caution**
