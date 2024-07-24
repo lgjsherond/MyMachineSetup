@@ -44,6 +44,7 @@ The script installs the following tools:
 * Homebrew: A popular package manager for macOS that simplifies software installation.
 * k6: A load testing tool for performance evaluation.
 * mitmproxy: An interactive HTTP proxy for debugging and manipulating web traffic.
+* MySQL Workbench : Is a unified visual database design tool developed by Oracle Corporation
 * Visual Studio Code (code): A versatile and powerful code editor.
 * Oh My ZSH (Optional): A framework for customizing your ZSH terminal experience. (Note: You may need to further configure Oh My ZSH after installation.)
 
