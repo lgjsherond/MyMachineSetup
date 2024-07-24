@@ -27,6 +27,10 @@ brew install mitmproxy
 echo "Installing Visual Studio Code..."
 brew install code
 
+# Install MySQL Workbench using Homebrew
+echo "Installing Visual Studio Code..."
+brew install --cask mysqlworkbench
+
 # Install Oh My ZSH (customization framework)
 if [ ! -d ~/.oh-my-zsh ]; then
   echo "Installing Oh My ZSH..."
