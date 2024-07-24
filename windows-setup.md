@@ -18,7 +18,7 @@ Install Tools (if available):
 ...
 PowerShell
 
-choco install k6 mitmproxy
+choco install k6
 
 ...
 
