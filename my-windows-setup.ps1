@@ -1,3 +1,23 @@
+# ==============================================================
+# Windows Setup Script
+# ==============================================================
+# This script installs various software packages using Chocolatey.
+#
+# Installation Information:
+# - Chocolatey (https://chocolatey.org)
+# - k6 (https://k6.io)
+# - Node.js (https://nodejs.org)
+# - Fiddler Classic (https://www.telerik.com/fiddler)
+# - Brave (https://brave.com)
+# - Firefox (https://www.mozilla.org/firefox)
+# - Visual Studio Code (https://code.visualstudio.com)
+# - Go Programming (https://golang.org)
+# - DBeaver Community (https://dbeaver.io)
+# - IntelliJ IDEA Community Edition (https://www.jetbrains.com/idea)
+#
+# Make sure to run this script with administrator privileges.
+# ==============================================================
+
 # Install Chocolatey (if not already installed)
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force; 
