@@ -107,6 +107,7 @@ Write-Output "VLC installation completed successfully."
 
 # Install Oh My Posh
 choco install oh-my-posh -y
+oh-my-posh font install meslo
 Write-Output "Oh my Posh for Powershell installation completed successfully."
 
 # Configure the Testrail-Result-Integration
