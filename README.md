@@ -1,4 +1,4 @@
-# MyMachineSetup
+# My Machine Setup
 
 This repository contains scripts to set up your development environment on both macOS and Windows.
 
@@ -10,7 +10,6 @@ This repository contains scripts to set up your development environment on both 
 2. **Clone the Repository**:
    - Open your terminal (macOS) or command prompt (Windows) and run the following command:
      ```
-     sh
      git clone https://github.com/lgjsherond/MyMachineSetup.git
      ```
 
@@ -21,7 +20,6 @@ This repository contains scripts to set up your development environment on both 
 To set up your development environment on macOS, run the following script:
 
 ```
-sh
 ./install-dev-tools.sh
 
 ```
