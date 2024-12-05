@@ -105,6 +105,10 @@ Write-Output "IntelliJ Community Edition installation completed successfully."
 choco install vlc -y
 Write-Output "VLC installation completed successfully."
 
+# Install Oh My Posh
+choco install oh-my-posh -y
+Write-Output "Oh my Posh for Powershell installation completed successfully."
+
 # Configure the Testrail-Result-Integration
 $sourceFile = ".\wiley.7z"  
 $destinationFolder = "$env:USERPROFILE\.m2\repository\com"
