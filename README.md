@@ -1,59 +1,33 @@
-# My Mac Setup
+# MyMachineSetup
 
-This repository provides a script to automate the installation of essential tools for your Mac development environment.
+This repository contains scripts to set up your development environment on both macOS and Windows.
 
 ## Prerequisites
-* macOS system
-* Internet access
-* Ability to enter your password when prompted for sudo privileges
----
-## Installation
 
-Clone the Repository:
+1. **Install Git**:
+   - Download and install Git from git-scm.com.
+
+2. **Clone the Repository**:
+   - Open your terminal (macOS) or command prompt (Windows) and run the following command:
+     ```
+     sh
+     git clone https://github.com/lgjsherond/MyMachineSetup.git
+     ```
+
+## Setup Instructions
+
+### MacOS
+
+To set up your development environment on macOS, run the following script:
+
 ```
-Bash
+sh
+./install-dev-tools.sh
 
-git clone https://github.com/lgjsherond/MyMacSetup.git
 ```
-Use code with caution.
 
-Navigate to the Directory:
+### Windows
+To set up your development environment on Windows, run the following script in PowerShell:
 ```
-Bash
-
-cd MyMacSetup
+.\my-windows-setup.ps1
 ```
-Use code with caution.
-
-Run the Script:
-
-Important: This script requires sudo privileges. You may be prompted for your password during the installation process.
-```
-Bash
-
-sudo ./install-mac-tools.sh
-```
-**Use code with caution**
-
----
-## What's Included
-
-The script installs the following tools:
-
-* Brave Browser: A secure and privacy-focused web browser.
-* Homebrew: A popular package manager for macOS that simplifies software installation.
-* k6: A load testing tool for performance evaluation.
-* mitmproxy: An interactive HTTP proxy for debugging and manipulating web traffic.
-* MySQL Workbench : Is a unified visual database design tool developed by Oracle Corporation
-* Visual Studio Code (code): A versatile and powerful code editor.
-* Oh My ZSH (Optional): A framework for customizing your ZSH terminal experience. (Note: You may need to further configure Oh My ZSH after installation.)
-
-## Additional Notes
-
-After installing Oh My ZSH, you might want to customize your settings in the ~/.zshrc file. Refer to the Oh My ZSH documentation for instructions: https://ohmyz.sh/
-Consider restarting your terminal for the changes to take full effect.
-Contributing
-
-Feel free to fork this repository and make changes to customize the script for your specific needs. If you have improvements or additional tools you'd like to include, please consider creating a pull request to contribute to the project.
-
-Happy Coding!
