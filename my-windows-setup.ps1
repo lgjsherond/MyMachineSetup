@@ -21,6 +21,19 @@
 # Make sure to run this script with administrator privileges.
 # ==============================================================
 
+# Check and install the latest PowerShell version
+$latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
+$latestVersion = $latestRelease.tag_name
+$msiUrl = $latestRelease.assets | Where-Object { $_.name -like "*win-x64.msi" } | Select-Object -ExpandProperty browser_download_url
+
+if ($PSVersionTable.PSVersion -lt [version]$latestVersion) {
+    Write-Output "Updating PowerShell to the latest version ($latestVersion)..."
+    Invoke-WebRequest -Uri $msiUrl -OutFile "$env:TEMP\PowerShell-latest.msi"
+    Start-Process msiexec.exe -ArgumentList "/i $env:TEMP\PowerShell-latest.msi /quiet" -NoNewWindow -Wait
+    Remove-Item "$env:TEMP\PowerShell-latest.msi"
+    Write-Output "PowerShell updated successfully. Please restart your session."
+}
+
 # Install Chocolatey (if not already installed)
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force; 
@@ -54,7 +67,6 @@ Write-Output "Verifying Maven installation..."
 mvn -version
 java -version
 Write-Output "JDK & Maven installation and configuration completed successfully."
-
 
 # Install k6
 choco install k6 -y
@@ -96,6 +108,19 @@ Write-Output "DBeaver installation completed successfully."
 # Install Visual Studio Code
 choco install vscode -y
 Write-Output "VS Code installation completed successfully."
+code --install-extension vscjava.vscode-java-pack
+code --install-extension redhat.java
+code --install-extension vscjava.vscode-maven
+code --install-extension vscjava.vscode-java-test
+code --install-extension k6.k6
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension ms-vscode.vscode-typescript-next
+code --install-extension github.vscode-github-actions
+code --install-extension github.copilot
+code --install-extension github.copilot-chat
+code --install-extension ms-vscode-remote.remote-wsl
+code --install-extension ms-azuretools.vscode-docker
+Write-Output "VS Code Extension installation completed successfully."
 
 # Install IntelliJ IDEA Community Edition
 choco install intellijidea-community -y
