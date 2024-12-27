@@ -1,14 +1,63 @@
 #!/bin/bash
 
-# Update system
-echo "Updating system..."
-sudo softwareupdate -l
+# Script for setting up development environment on macOS and Linux
 
-# Install Homebrew (package manager)
-if ! command -v brew >/dev/null 2>&1; then
-  echo "Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Update package list and install prerequisites
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    sudo apt-get update
+    sudo apt-get install -y curl git openjdk-11-jdk maven nodejs npm golang-go \
+                            dbeaver-ce intellij-idea-community vlc \
+                            firefox
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install Homebrew if not installed
+    if ! command -v brew &> /dev/null; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    brew update
+    brew install git openjdk@11 maven node go \
+                 dbeaver-community intellij-idea-ce vlc \
+                 firefox
 fi
+
+# Set up environment variables
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+export MAVEN_HOME=$(dirname $(dirname $(readlink -f $(which mvn))))
+export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
+
+echo "JAVA_HOME set to $JAVA_HOME"
+echo "MAVEN_HOME set to $MAVEN_HOME"
+
+# Verify installations
+echo "Verifying installations..."
+java -version
+mvn -version
+node -v
+npm -v
+go version
+
+# Install Visual Studio Code and extensions
+echo "Installing Visual Studio Code and extensions"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    sudo snap install --classic code
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install --cask visual-studio-code
+fi
+
+code --install-extension vscjava.vscode-java-pack
+code --install-extension redhat.java
+code --install-extension vscjava.vscode-maven
+code --install-extension vscjava.vscode-java-test
+code --install-extension k6.k6
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension ms-vscode.vscode-typescript-next
+code --install-extension github.vscode-github-actions
+code --install-extension github.copilot
+code --install-extension github.copilot-chat
+code --install-extension ms-vscode-remote.remote-wsl
+code --install-extension ms-azuretools.vscode-docker
+
+echo "VS Code and extensions installed successfully."
 
 # Install Brave browser using Homebrew
 echo "Installing Brave browser..."
@@ -22,14 +71,6 @@ brew install k6
 # Install mitmproxy (interactive HTTP proxy) using Homebrew
 echo "Installing mitmproxy..."
 brew install mitmproxy
-
-# Install Visual Studio Code (code editor) using Homebrew
-echo "Installing Visual Studio Code..."
-brew install code
-
-# Install MySQL Workbench using Homebrew
-echo "Installing Visual Studio Code..."
-brew install --cask mysqlworkbench
 
 # Install Oh My ZSH (customization framework)
 if [ ! -d ~/.oh-my-zsh ]; then
@@ -47,4 +88,4 @@ git clone https://github.com/ohmyzsh/ohmyzsh-themes ~/.oh-my-zsh/themes
 # Source the updated .zshrc file to apply changes
 source ~/.zshrc
 
-echo "Installation complete!"
+echo "Setup completed successfully. Please restart your terminal to apply changes."
