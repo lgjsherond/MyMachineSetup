@@ -5,6 +5,7 @@
 #
 # Installation Information:
 # - Chocolatey (https://chocolatey.org)
+# - GIT
 # - k6 (https://k6.io)
 # - Node.js (https://nodejs.org)
 # - Maven
@@ -41,6 +42,10 @@ if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
 
+#Install GIT
+choco install git
+Write-Output "GIT installation completed successfully."
+
 # Insall JDK
 choco install openjdk -y
 Write-Output "JDK installation completed successfully."
@@ -48,7 +53,6 @@ Write-Output "JDK installation completed successfully."
 # Install Maven
 choco install maven -y
 Write-Output "Maven installation completed successfully."
-
 
 # Set environment variables
 $mavenHome = (Get-Command mvn).Path | Split-Path -Parent -Parent
@@ -89,6 +93,10 @@ Write-Output "Node JS installation completed successfully."
 choco install fiddler -y
 Write-Output "Fiddler installation completed successfully."
 
+# Install MITM Proxy
+choco install mitmproxy
+Write-Output "MITM Proxy installation completed successfully."
+
 # Install Brave
 choco install brave -y
 Write-Output "Brave installation completed successfully."
@@ -125,6 +133,10 @@ Write-Output "VS Code Extension installation completed successfully."
 # Install IntelliJ IDEA Community Edition
 choco install intellijidea-community -y
 Write-Output "IntelliJ Community Edition installation completed successfully."
+
+#Install OWASP ZAP
+choco install zap
+Write-Output "OWASP ZAP installation completed successfully."
 
 # Install VLCn
 choco install vlc -y
