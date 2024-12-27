@@ -4,20 +4,19 @@ This repository contains scripts to set up your development environment on both 
 
 ## Prerequisites
 
-1. **Install Git**:
-   - Download and install Git from git-scm.com.
-
-2. **Clone the Repository**:
-   - Open your terminal (macOS) or command prompt (Windows) and run the following command:
+1. **Download the Repository**:
+   - Download the file from the below github repo:
      ```
-     git clone https://github.com/lgjsherond/MyMachineSetup.git
+     https://github.com/lgjsherond/MyMachineSetup.git
      ```
+2. **Extract and open the directory**
+3. **Open your favorite terminal**
 
 ## Setup Instructions
 
-### MacOS
+### MacOS \ Linux
 
-To set up your development environment on macOS, run the following script:
+To set up your development environment on macOS or Linux run the following script:
 
 ```
 ./install-dev-tools.sh
