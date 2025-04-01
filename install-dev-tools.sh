@@ -24,10 +24,6 @@ fi
 brew install git
 git --version
 
-#install GO
-brew install go
-go version
-
 # Set up environment variables
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 export MAVEN_HOME=$(dirname $(dirname $(readlink -f $(which mvn))))
@@ -43,6 +39,30 @@ mvn -version
 node -v
 npm -v
 go version
+
+# Configure the Testrail-Result-Integration
+sourceFile="./wiley.7z"
+destinationFolder="$HOME/.m2/repository/com"
+
+# Ensure the destination folder exists
+if [ ! -d "$destinationFolder" ]; then
+    echo "Creating destination folder..."
+    mkdir -p "$destinationFolder"
+fi
+
+# Copy the Test Rail results file to the destination folder
+echo "Copying the file to destination folder..."
+cp "$sourceFile" "$destinationFolder"
+
+# Extract the TestRail Results library file in the destination folder
+echo "Extracting 7z file..."
+7z x "$destinationFolder/$(basename $sourceFile)" -o"$destinationFolder" -y
+
+echo "Test Rail Configuration successfully."
+
+# Refresh environment variables
+source ~/.bash_profile
+
 
 # Install Visual Studio Code and extensions
 echo "Installing Visual Studio Code and extensions"
