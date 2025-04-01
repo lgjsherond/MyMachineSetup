@@ -20,6 +20,14 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
                  firefox
 fi
 
+# Install GIT
+brew install git
+git --version
+
+#install GO
+brew install go
+go version
+
 # Set up environment variables
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 export MAVEN_HOME=$(dirname $(dirname $(readlink -f $(which mvn))))
