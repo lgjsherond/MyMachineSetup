@@ -21,151 +21,182 @@
 #
 # Make sure to run this script with administrator privileges.
 # ==============================================================
+# ==============================================================
+# Windows Setup Script (Up-to-date: 2025-05)
+# ==============================================================
 
-# Check and install the latest PowerShell version
-$latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-$latestVersion = $latestRelease.tag_name
-$msiUrl = $latestRelease.assets | Where-Object { $_.name -like "*win-x64.msi" } | Select-Object -ExpandProperty browser_download_url
+# ==============================================================
+# Windows Setup Script (Up-to-date: 2025-05, with error handling)
+# ==============================================================
 
-if ($PSVersionTable.PSVersion -lt [version]$latestVersion) {
-    Write-Output "Updating PowerShell to the latest version ($latestVersion)..."
-    Invoke-WebRequest -Uri $msiUrl -OutFile "$env:TEMP\PowerShell-latest.msi"
-    Start-Process msiexec.exe -ArgumentList "/i $env:TEMP\PowerShell-latest.msi /quiet" -NoNewWindow -Wait
-    Remove-Item "$env:TEMP\PowerShell-latest.msi"
-    Write-Output "PowerShell updated successfully. Please restart your session."
+# Abort script on any error
+$ErrorActionPreference = 'Stop'
+
+# Ensure running as Administrator
+If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You need to run this script as an Administrator!"
+    Exit 1
 }
 
-# Install Chocolatey (if not already installed)
-if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-    Set-ExecutionPolicy Bypass -Scope Process -Force; 
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
-    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+# Error handler
+function Abort-OnError {
+    param([string]$message)
+    Write-Error $message
+    Exit 1
 }
 
-#Install GIT
-choco install git
-Write-Output "GIT installation completed successfully."
+try {
+    # Check and install/update latest PowerShell
+    $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
+    $latestVersion = $latestRelease.tag_name
+    $msiUrl = $latestRelease.assets | Where-Object { $_.name -like "*win-x64.msi" } | Select-Object -ExpandProperty browser_download_url
 
-# Insall JDK
-choco install openjdk -y
-Write-Output "JDK installation completed successfully."
+    if ($PSVersionTable.PSVersion -lt [version]$latestVersion) {
+        Write-Output "Updating PowerShell to version $latestVersion ..."
+        Invoke-WebRequest -Uri $msiUrl -OutFile "$env:TEMP\PowerShell-latest.msi"
+        Start-Process msiexec.exe -ArgumentList "/i $env:TEMP\PowerShell-latest.msi /quiet" -NoNewWindow -Wait
+        Remove-Item "$env:TEMP\PowerShell-latest.msi"
+        Write-Output "PowerShell updated. Please restart your session before rerunning this script."
+        Exit 0
+    }
 
-# Install Maven
-choco install maven -y
-Write-Output "Maven installation completed successfully."
+    # Install Chocolatey if not present
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+        Write-Output "Chocolatey not found. Installing Chocolatey..."
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        # Add choco to PATH for current session
+        $env:Path += ";$env:ALLUSERSPROFILE\chocolatey\bin"
+    }
 
-# Set environment variables
-$mavenHome = (Get-Command mvn).Path | Split-Path -Parent -Parent
-$jdkPath = (Get-Command java).Path | Split-Path -Parent -Parent
+    # Wait for choco command to be available
+    $maxTries = 10
+    $try = 0
+    while (-not (Get-Command choco -ErrorAction SilentlyContinue) -and $try -lt $maxTries) {
+        Start-Sleep -Seconds 2
+        $try++
+    }
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+        Abort-OnError "Chocolatey installation failed or PATH not set. Please restart PowerShell and rerun this script."
+    }
 
-Write-Output "Setting environment variables..."
-[System.Environment]::SetEnvironmentVariable("JAVA_HOME", $jdkPath, [System.EnvironmentVariableTarget]::Machine)
-[System.Environment]::SetEnvironmentVariable("MAVEN_HOME", $mavenHome, [System.EnvironmentVariableTarget]::Machine)
-$env:Path += ";$mavenHome\bin"
-[System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
-$env:JDKPath += ";$jdkPath\bin"
-[System.Environment]::SetEnvironmentVariable("Path", $env:JDKPath, [System.EnvironmentVariableTarget]::Machine)
+    # Helper function to install packages via choco and abort on failure
+    function Install-ChocoPackage {
+        param (
+            [string]$package,
+            [string]$extraArgs = ""
+        )
+        Write-Output "Installing $package ..."
+        choco install $package -y $extraArgs
+        if ($LASTEXITCODE -ne 0) {
+            Abort-OnError "Failed to install $package. Aborting."
+        } else {
+            Write-Output "$package installed successfully."
+        }
+    }
 
-# Verify installation
-Write-Output "Verifying Maven installation..."
-mvn -version
-java -version
-Write-Output "JDK & Maven installation and configuration completed successfully."
+    # Software Installations
+    Install-ChocoPackage git
+    Install-ChocoPackage openjdk
+    Install-ChocoPackage maven
+    Install-ChocoPackage k6
+    Install-ChocoPackage 7zip
+    Install-ChocoPackage nodejs
+    Install-ChocoPackage fiddler
+    Install-ChocoPackage mitmproxy
+    Install-ChocoPackage brave
+    Install-ChocoPackage firefox
+    Install-ChocoPackage golang
+    Install-ChocoPackage dbeaver
+    Install-ChocoPackage vscode
+    Install-ChocoPackage intellijidea-community
+    Install-ChocoPackage zap
+    Install-ChocoPackage vlc
+    Install-ChocoPackage oh-my-posh
 
-# Install k6
-choco install k6 -y
-Write-Output "K6 installation completed successfully."
+    # Add 7-Zip to PATH
+    $sevenZipPath = "C:\Program Files\7-Zip"
+    if (Test-Path $sevenZipPath) {
+        $env:Path += ";$sevenZipPath"
+        [System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+        Write-Output "7-Zip added to PATH."
+    }
 
-# 7 Zip
-choco install 7zip -y
-# Get the 7-Zip installation path
-$sevenZipPath = "C:\Program Files\7-Zip"
-# Add 7-Zip to the PATH environment variable
-$env:Path += ";$sevenZipPath"
-[System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
-Write-Output "7Zip installation completed successfully."
+    # Set JAVA_HOME and MAVEN_HOME environment variables
+    $mavenHome = (Get-Command mvn).Path | Split-Path -Parent -Parent
+    $jdkPath = (Get-Command java).Path | Split-Path -Parent -Parent
 
-# Install Node.js
-choco install nodejs -y
-Write-Output "Node JS installation completed successfully."
+    Write-Output "Setting JAVA_HOME and MAVEN_HOME..."
+    [System.Environment]::SetEnvironmentVariable("JAVA_HOME", $jdkPath, [System.EnvironmentVariableTarget]::Machine)
+    [System.Environment]::SetEnvironmentVariable("MAVEN_HOME", $mavenHome, [System.EnvironmentVariableTarget]::Machine)
+    $env:Path += ";$mavenHome\bin"
+    [System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
 
-# Install Fiddler Classic
-choco install fiddler -y
-Write-Output "Fiddler installation completed successfully."
+    # Verify installations
+    Write-Output "Verifying Maven and Java installations:"
+    try { mvn -version } catch { Abort-OnError "Maven verification failed. Aborting." }
+    try { java -version } catch { Abort-OnError "Java verification failed. Aborting." }
 
-# Install MITM Proxy
-choco install mitmproxy
-Write-Output "MITM Proxy installation completed successfully."
+    # Install VSCode Extensions
+    $codeCmd = "code"
+    if (Get-Command $codeCmd -ErrorAction SilentlyContinue) {
+        $extensions = @(
+            "vscjava.vscode-java-pack",
+            "redhat.java",
+            "vscjava.vscode-maven",
+            "vscjava.vscode-java-test",
+            "k6.k6",
+            "dbaeumer.vscode-eslint",
+            "ms-vscode.vscode-typescript-next",
+            "github.vscode-github-actions",
+            "github.copilot",
+            "github.copilot-chat",
+            "ms-vscode-remote.remote-wsl",
+            "ms-azuretools.vscode-docker"
+        )
+        foreach ($ext in $extensions) {
+            Write-Output "Installing VSCode extension: $ext"
+            code --install-extension $ext
+            if ($LASTEXITCODE -ne 0) {
+                Abort-OnError "Failed to install VSCode extension $ext. Aborting."
+            }
+        }
+        Write-Output "VSCode Extensions installation completed."
+    } else {
+        Write-Warning "VSCode 'code' command not found in PATH. Skipping VSCode extensions installation."
+    }
 
-# Install Brave
-choco install brave -y
-Write-Output "Brave installation completed successfully."
+    # Oh My Posh font install (requires user interaction)
+    try {
+        oh-my-posh font install meslo
+        Write-Output "Oh My Posh Meslo font installed."
+    } catch {
+        Write-Warning "Could not install Oh My Posh font. Please install manually if needed."
+    }
 
-# Install Firefox
-choco install firefox -y
-Write-Output "Firefox installation completed successfully."
+    # TestRail configuration (wiley.7z extraction)
+    $sourceFile = ".\wiley.7z"  
+    $destinationFolder = "$env:USERPROFILE\.m2\repository\com"
 
-# Install Go Programming
-choco install golang -y
-Write-Output "Go Programming Language installation completed successfully."
+    if (-not (Test-Path -Path $destinationFolder)) {
+        Write-Output "Creating destination folder..."
+        New-Item -ItemType Directory -Path $destinationFolder -Force
+    }
+    Write-Output "Copying wiley.7z to destination folder..."
+    Copy-Item -Path $sourceFile -Destination $destinationFolder
+    Write-Output "Extracting wiley.7z..."
+    7z x "$destinationFolder\wiley.7z" -o"$destinationFolder" -y
 
-# Install DBeaver Community
-choco install dbeaver -y
-Write-Output "DBeaver installation completed successfully."
+    # Refresh environment variables
+    if (Get-Command refreshenv -ErrorAction SilentlyContinue) {
+        refreshenv
+    } else {
+        Write-Output "Please restart your terminal or run 'refreshenv' to reload environment variables."
+    }
 
-# Install Visual Studio Code
-choco install vscode -y
-Write-Output "VS Code installation completed successfully."
-code --install-extension vscjava.vscode-java-pack
-code --install-extension redhat.java
-code --install-extension vscjava.vscode-maven
-code --install-extension vscjava.vscode-java-test
-code --install-extension k6.k6
-code --install-extension dbaeumer.vscode-eslint
-code --install-extension ms-vscode.vscode-typescript-next
-code --install-extension github.vscode-github-actions
-code --install-extension github.copilot
-code --install-extension github.copilot-chat
-code --install-extension ms-vscode-remote.remote-wsl
-code --install-extension ms-azuretools.vscode-docker
-Write-Output "VS Code Extension installation completed successfully."
+    Write-Output "Windows machine setup completed successfully."
 
-# Install IntelliJ IDEA Community Edition
-choco install intellijidea-community -y
-Write-Output "IntelliJ Community Edition installation completed successfully."
-
-#Install OWASP ZAP
-choco install zap
-Write-Output "OWASP ZAP installation completed successfully."
-
-# Install VLCn
-choco install vlc -y
-Write-Output "VLC installation completed successfully."
-
-# Install Oh My Posh
-choco install oh-my-posh -y
-oh-my-posh font install meslo
-Write-Output "Oh my Posh for Powershell installation completed successfully."
-
-# Configure the Testrail-Result-Integration
-$sourceFile = ".\wiley.7z"  
-$destinationFolder = "$env:USERPROFILE\.m2\repository\com"
-
-# Ensure the destination folder exists
-if (-not (Test-Path -Path $destinationFolder)) {
-    Write-Output "Creating destination folder..."
-    New-Item -ItemType Directory -Path $destinationFolder -Force
+} catch {
+    Abort-OnError "An error occurred: $_"
 }
-
-# Copy the Test Rail results file to the destination folder
-Write-Output "Copying the file to destination folder..."
-Copy-Item -Path $sourceFile -Destination $destinationFolder
-
-# Extract the TestRail Results linrary file in the destination folder
-Write-Output "Extracting 7z file..."
-7z x "$destinationFolder\$sourceFile" -o"$destinationFolder" -y
-
-Write-Output "Test Rail Configuration successfully."
-
-# Refresh environment variables
-refreshenv
