@@ -2,7 +2,7 @@
 
 # Script for setting up development environment on macOS and Linux
 # Author: Sheron Gerard Jeshuran
-# Version: 1.0
+# Version: 1.2
 
 # Function to print error messages and exit
 function error_exit {
@@ -30,14 +30,44 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 
     brew update || error_exit "Failed to update Homebrew"
-    brew install git maven node go \
-                 dbeaver-community intellij-idea-ce vlc \
-                 firefox || error_exit "Failed to install packages on macOS"
-    
-    # Install Amazon Corretto 21
+
+     # Install Amazon Corretto 21
     brew tap homebrew/cask-versions
     brew install --cask corretto || error_exit "Failed to install Amazon Corretto 21"
+
+    # Install Visual Studio Code
+    echo "Installing VS Code..."
+    brew install --cask visual-studio-code || error_exit "Failed to install Visual Studio Code"
+
+    # Install Brave Browser
+    echo "Installing Brave browser..."
+    brew install --cask brave-browser || error_exit "Failed to install Brave browser"
+    
+    brew install git maven node go \
+                 dbeaver-community intellij-idea-ce vlc \
+                 firefox k6 mitmproxy|| error_exit "Failed to install packages on macOS"
+   
 fi
+
+# Configure the Testrail-Result-Integration
+sourceFile="./wiley.7z"
+destinationFolder="$HOME/.m2/repository/com"
+
+# Ensure the TestRail destination folder exists
+if [ ! -d "$destinationFolder" ]; then
+    echo "Creating destination folder..."
+    mkdir -p "$destinationFolder" || error_exit "Failed to create destination folder"
+fi
+
+# Copy the Test Rail results file to the destination folder
+echo "Copying the file to destination folder..."
+cp "$sourceFile" "$destinationFolder" || error_exit "Failed to copy the file"
+
+# Extract the TestRail Results library file in the destination folder
+echo "Extracting 7z file..."
+7z x "$destinationFolder/$(basename $sourceFile)" -o"$destinationFolder" -y || error_exit "Failed to extract 7z file"
+
+echo "Test Rail Configuration successfully."
 
 # Set up environment variables
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
@@ -55,37 +85,10 @@ node -v || error_exit "Node.js installation verification failed"
 npm -v || error_exit "NPM installation verification failed"
 go version || error_exit "Go installation verification failed"
 
-# Configure the Testrail-Result-Integration
-sourceFile="./wiley.7z"
-destinationFolder="$HOME/.m2/repository/com"
-
-# Ensure the destination folder exists
-if [ ! -d "$destinationFolder" ]; then
-    echo "Creating destination folder..."
-    mkdir -p "$destinationFolder" || error_exit "Failed to create destination folder"
-fi
-
-# Copy the Test Rail results file to the destination folder
-echo "Copying the file to destination folder..."
-cp "$sourceFile" "$destinationFolder" || error_exit "Failed to copy the file"
-
-# Extract the TestRail Results library file in the destination folder
-echo "Extracting 7z file..."
-7z x "$destinationFolder/$(basename $sourceFile)" -o"$destinationFolder" -y || error_exit "Failed to extract 7z file"
-
-echo "Test Rail Configuration successfully."
-
 # Refresh environment variables
 source ~/.bash_profile || error_exit "Failed to source .bash_profile"
 
-# Install Visual Studio Code and extensions
-echo "Installing Visual Studio Code and extensions"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    sudo snap install --classic code || error_exit "Failed to install VS Code on Linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install --cask visual-studio-code || error_exit "Failed to install VS Code on macOS"
-fi
-
+# Install VS Code required extentions
 code --install-extension vscjava.vscode-java-pack
 code --install-extension redhat.java
 code --install-extension vscjava.vscode-maven
@@ -101,33 +104,8 @@ code --install-extension ms-azuretools.vscode-docker
 
 echo "VS Code and extensions installed successfully."
 
-# Install Brave browser using Homebrew
-echo "Installing Brave browser..."
-brew install --cask brave-browser || error_exit "Failed to install Brave browser"
-
-# Install k6 load testing tool using Homebrew
-echo "Installing k6 load testing tool..."
-brew install k6 || error_exit "Failed to install k6"
-
-# Install mitmproxy (interactive HTTP proxy) using Homebrew
-echo "Installing mitmproxy..."
-brew install mitmproxy || error_exit "Failed to install mitmproxy"
-
-# Install Oh My ZSH (customization framework)
-if [ ! -d ~/.oh-my-zsh ]; then
-  echo "Installing Oh My ZSH..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || error_exit "Failed to install Oh My ZSH"
-fi
-
-# Clone Oh My ZSH themes repository (optional)
-# You can choose a theme you like from https://github.com/ohmyzsh/ohmyzsh-themes
-git clone https://github.com/ohmyzsh/ohmyzsh-themes ~/.oh-my-zsh/themes || error_exit "Failed to clone Oh My ZSH themes"
-
-# Set up your preferred theme in your ~/.zshrc file
-# Refer to the Oh My ZSH documentation for instructions: https://ohmyzsh.com/
-
-# Source the updated .zshrc file to apply changes
-source ~/.zshrc || error_exit "Failed to source .zshrc"
+mkdir -p "$HOME/.zfunc"
+git clone https://github.com/sindresorhus/pure.git "$HOME/.zfunc/pure"
 
 echo "Setup completed successfully. Please restart your terminal to apply changes."
 
