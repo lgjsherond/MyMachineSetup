@@ -46,7 +46,13 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     brew install git maven node go \
                  dbeaver-community intellij-idea-ce vlc \
                  firefox k6 mitmproxy|| error_exit "Failed to install packages on macOS"
-   
+
+    # Install Visual Studio Code
+    echo "Installing Python..."
+    brew install python || error_exit "Failed to install python"
+    which python3 && python3 --version
+    echo "alias python='python3'" >> ~/.zshrc && source ~/.zshrc
+    
 fi
 
 # Configure the Testrail-Result-Integration
@@ -95,6 +101,7 @@ code --install-extension vscjava.vscode-maven
 code --install-extension vscjava.vscode-java-test
 code --install-extension k6.k6
 code --install-extension dbaeumer.vscode-eslint
+code --install-extension ms-python.python
 code --install-extension ms-vscode.vscode-typescript-next
 code --install-extension github.vscode-github-actions
 code --install-extension github.copilot
